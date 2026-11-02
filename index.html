@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Starfall Breakout - Retro Space Arcade Runner</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="game-container" class="mode-immersive">
+    <!-- Arcade Cabinet Marquee & Chassis (Visible in Cabinet Mode) -->
+    <div class="cabinet-marquee">
+      <span>★ STARFALL BREAKOUT • CAB #84 ★</span>
+      <span>1P FREE PLAY</span>
+    </div>
+    <div class="cabinet-chassis">
+      <span class="coin-slot-badge">🟡 INSERT COIN [25¢]</span>
+      <span>RETRO ARCADE UNIT</span>
+    </div>
+
+    <!-- Game Canvas (Horizontal Landscape) -->
+    <canvas id="gameCanvas" width="800" height="480"></canvas>
+
+    <!-- CRT Scanline Overlay -->
+    <div class="crt-overlay"></div>
+
+    <!-- HUD Overlay -->
+    <div id="hud">
+      <div class="hud-top">
+        <!-- Left Side: Player Lives (Hearts) -->
+        <div class="hud-left">
+          <div id="heartsContainer" class="hearts" aria-label="Lives">
+            <img src="assets/images/cyber_heart.png" class="heart-img active" alt="Life 1">
+            <img src="assets/images/cyber_heart.png" class="heart-img active" alt="Life 2">
+            <img src="assets/images/cyber_heart.png" class="heart-img active" alt="Life 3">
+          </div>
+        </div>
+
+        <!-- Right Side: Unified Telemetry (Timer, Score, and Hi-Score side-by-side) -->
+        <div class="hud-right-telemetry">
+          <!-- Survival Timer -->
+          <div class="hud-timer-box">
+            <span class="label" data-i18n="hudSurvived">BERTAHAN</span>
+            <span id="timerVal" class="value timer-glow">00:00</span>
+            <span id="hudDiffBadge" class="hud-diff-badge diff-normal">NORMAL</span>
+          </div>
+
+          <!-- Current Score -->
+          <div class="hud-score-box">
+            <span class="label" data-i18n="hudScore">SKOR</span>
+            <span id="scoreVal" class="value">0</span>
+          </div>
+
+          <!-- High Score -->
+          <div class="hud-score-box">
+            <span class="label" data-i18n="hudHiScore">HI-SKOR</span>
+            <span id="highScoreVal" class="value">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boss Health Bar (Checkpoint Battle) -->
+      <div id="bossBarContainer" class="boss-bar-container hidden">
+        <div class="boss-info">
+          <div class="boss-info-left">
+            <img id="bossBarAvatar" src="assets/images/miniboss.png" alt="Boss" class="boss-bar-avatar">
+            <div class="boss-title-col">
+              <span id="bossName" class="boss-name">⚠️ MINI-BOSS: VOID DESTROYER ⚠️</span>
+              <span id="bossSubtitle" class="boss-subtitle">FRONTLINE STRIKE CRUISER</span>
+            </div>
+          </div>
+          <span id="bossHpPercent" class="boss-hp-pct">100%</span>
+        </div>
+        <div class="boss-hp-track">
+          <div id="bossHpFill" class="boss-hp-fill"></div>
+        </div>
+      </div>
+
+      <!-- Bottom HUD Row: Ultimate Bar & Active Buffs -->
+      <div class="hud-bottom-row">
+        <div class="ult-bar-container">
+          <div class="ult-label">
+            <span class="ult-title-with-icon">
+              <img src="assets/images/ult_icon.png" alt="Ult" class="ult-mini-thumb">
+              STELLAR BLASTER [SPACE]
+            </span>
+          </div>
+          <div class="ult-progress-track">
+            <div id="ultProgressBar" class="ult-progress-fill"></div>
+          </div>
+        </div>
+        <div id="activeBuffs" class="active-buffs"></div>
+      </div>
+    </div>
+
+    <!-- Boss Warning Banner -->
+    <div id="bossWarningBanner" class="boss-warning-banner hidden">
+      <div class="warning-banner-content">
+        <img id="bossWarningAvatar" src="assets/images/miniboss.png" alt="Boss Warning" class="boss-warning-avatar">
+        <div class="warning-text-group">
+          <div class="warning-title">⚠️ PERINGATAN BOS ⚠️</div>
+          <div id="warningSub" class="warning-sub">VOID DESTROYER MENDEKAT!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Start / Title Screen Overlay -->
+    <div id="startScreen" class="overlay-screen active">
+      <div class="start-screen-card">
+        <!-- Top Utility Bar: Language, Display Mode & Fullscreen -->
+        <div class="start-top-bar">
+          <div class="lang-switch-bar">
+            <button type="button" class="lang-pill-btn active" data-lang="id">ID</button>
+            <button type="button" class="lang-pill-btn" data-lang="en">EN</button>
+          </div>
+          <div class="screen-mode-pills">
+            <button type="button" class="mode-pill-btn active" data-mode="immersive" title="Mode Full Edge-to-Edge">⛶ FULL</button>
+            <button type="button" class="mode-pill-btn" data-mode="cabinet" title="Mode Retro Arcade Cabinet">📺 CABINET</button>
+          </div>
+          <button type="button" id="btnFullscreenStart" class="fullscreen-pill-btn">
+            <span class="fs-icon">⛶</span>
+            <span data-i18n="btnFullscreen">LAYAR PENUH</span>
+          </button>
+        </div>
+
+        <div class="title-banner">
+          <div class="sub-title" data-i18n="subTitle">RETRO ARCADE SPACE RUNNER</div>
+          <h1 class="main-title">STARFALL<br><span class="highlight">BREAKOUT</span></h1>
+        </div>
+
+        <!-- Character / Ship Selection Carousel -->
+        <div class="ship-select-container">
+          <div class="ship-carousel">
+            <button type="button" id="btnShipPrev" class="ship-nav-btn" aria-label="Pesawat Sebelumnya">◀</button>
+            <div id="shipCardActive" class="ship-card">
+              <div class="ship-card-avatar-wrap">
+                <img id="shipAvatarImg" src="assets/images/player_ship.png" alt="Ship" class="ship-avatar-main">
+                <span id="shipClassBadge" class="ship-class-badge badge-interceptor">INTERCEPTOR</span>
+              </div>
+              <div class="ship-card-details">
+                <div class="ship-name-row">
+                  <span id="shipNameText" class="ship-name">STELLA NOVA</span>
+                </div>
+                <div class="ship-stats-row">
+                  <span class="stat-badge">⚡ SPD <b id="statSpeed">320</b></span>
+                  <span class="stat-badge">💥 WEAPON <b id="statPower">TWIN CANNON</b></span>
+                  <span class="stat-badge">❤️ HP <b id="statHp">STANDARD</b></span>
+                </div>
+                <div class="ship-skills-row">
+                  <div class="ship-skill-chip survive-chip">
+                    <span class="skill-type-tag">🛡️ SURVIVE [C]:</span>
+                    <span id="shipSurviveDesc" class="skill-name-val">COSMIC AEGIS SHIELD</span>
+                  </div>
+                  <div class="ship-skill-chip ult-chip">
+                    <span class="skill-type-tag">⭐ ULT [SPACE]:</span>
+                    <span id="shipUltDesc" class="skill-name-val">STELLAR BLASTER BEAM</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button type="button" id="btnShipNext" class="ship-nav-btn" aria-label="Pesawat Berikutnya">▶</button>
+          </div>
+        </div>
+
+        <!-- Difficulty Level Selector -->
+        <div class="difficulty-select-container">
+          <div class="difficulty-label" data-i18n="diffSelectLabel">PILIH TINGKAT KESULITAN:</div>
+          <div class="difficulty-btn-group" role="radiogroup" aria-label="Tingkat Kesulitan">
+            <button type="button" class="diff-btn" data-diff="easy">
+              <span class="diff-icon">🟢</span>
+              <span class="diff-title">EASY</span>
+              <span class="diff-meta" data-i18n="diffEasyMeta">4 Nyawa • 0.8x</span>
+            </button>
+            <button type="button" class="diff-btn active" data-diff="normal">
+              <span class="diff-icon">🔵</span>
+              <span class="diff-title">NORMAL</span>
+              <span class="diff-meta" data-i18n="diffNormalMeta">Standar • 1.0x</span>
+            </button>
+            <button type="button" class="diff-btn" data-diff="hard">
+              <span class="diff-icon">🔴</span>
+              <span class="diff-title">HARD</span>
+              <span class="diff-meta" data-i18n="diffHardMeta">Agresif • 1.5x</span>
+            </button>
+            <button type="button" class="diff-btn touhou-diff" data-diff="hardcorez">
+              <span class="diff-icon">🟣</span>
+              <span class="diff-title">HARDCOREZ</span>
+              <span class="diff-meta" data-i18n="diffHardcorezMeta">Touhou Danmaku • 2.5x</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Controls summary bar -->
+        <div class="quick-controls-bar">
+          <span class="ctrl-chip">🎮 <strong>WASD / Panah</strong></span>
+          <span class="ctrl-sep">•</span>
+          <span class="ctrl-chip">💥 <strong data-i18n="quickAutoFire">Auto-Fire</strong></span>
+          <span class="ctrl-sep">•</span>
+          <span class="ctrl-chip">🌟 <strong data-i18n="quickUlt">Ult: SPACE</strong></span>
+        </div>
+
+        <div class="screen-btn-row">
+          <button id="btnStart" class="pixel-btn play-btn" data-i18n="btnStart">MULAI MAIN</button>
+          <button id="btnLeaderboardStart" class="pixel-btn leaderboard-btn" data-i18n="btnLeaderboard">🏆 TOP PILOT</button>
+          <button id="btnBossCodex" class="pixel-btn codex-btn" title="Katalog 100 Bos">👾 KODEX BOS (100)</button>
+          <button id="btnHowToPlayStart" class="pixel-btn help-btn" data-i18n="btnHowToPlay">❓ CARA MAIN</button>
+        </div>
+        <div class="controls-hint" data-i18n="startHint">Tekan [SPACE] / [ENTER] untuk mulai • [V] Ganti Mode Layar • [F] Layar Penuh</div>
+      </div>
+    </div>
+
+    <!-- Game Over Screen Overlay -->
+    <div id="gameOverScreen" class="overlay-screen">
+      <div class="game-over-card">
+        <h2 class="game-over-title">GAME OVER</h2>
+        <div class="result-box">
+          <div class="result-row">
+            <span data-i18n="lblFinalDiff">Tingkat Kesulitan:</span>
+            <span id="finalDiff" class="result-val highlight">NORMAL</span>
+          </div>
+          <div class="result-row">
+            <span data-i18n="lblFinalTime">⏱️ Waktu Bertahan:</span>
+            <span id="finalTime" class="result-val">00:00</span>
+          </div>
+          <div class="result-row">
+            <span data-i18n="lblFinalBestTime">👑 Waktu Terbaik:</span>
+            <span id="finalBestTime" class="result-val highlight">00:00</span>
+          </div>
+          <hr class="result-divider">
+          <div class="result-row">
+            <span data-i18n="lblFinalScore">Skor Akhir:</span>
+            <span id="finalScore" class="result-val">0</span>
+          </div>
+          <div class="result-row">
+            <span data-i18n="lblFinalHighScore">Skor Tertinggi:</span>
+            <span id="finalHighScore" class="result-val highlight">0</span>
+          </div>
+          <div id="newRecordBadge" class="new-record-badge hidden" data-i18n="newRecordBadge">🏆 REKOR BARU DICAPAI! 🏆</div>
+        </div>
+
+        <!-- Submit High Score to Global Leaderboard -->
+        <div id="submitScoreSection" class="submit-score-section">
+          <div class="submit-title" data-i18n="submitTitle">📡 CATAT REKOR KE HALL OF FAME:</div>
+          <div class="submit-input-group">
+            <input type="text" id="pilotNameInput" class="pilot-input" placeholder="NAMA PILOT" maxlength="10" autocomplete="off" spellcheck="false">
+            <button id="btnSubmitScore" class="pixel-btn submit-btn" data-i18n="btnSubmit">KIRIM 🚀</button>
+          </div>
+          <div id="submitStatusMsg" class="submit-status-msg"></div>
+        </div>
+
+        <div class="screen-btn-row">
+          <button id="btnRestart" class="pixel-btn restart-btn" data-i18n="btnRestart">MAIN LAGI</button>
+          <button id="btnMenuGameOver" class="pixel-btn menu-btn" data-i18n="btnMenu">🏠 MENU / LEVEL</button>
+          <button id="btnLeaderboardGameOver" class="pixel-btn leaderboard-btn" data-i18n="btnLeaderboard">🏆 TOP PILOT</button>
+        </div>
+        <div class="controls-hint" data-i18n="gameOverHint">Tekan [SPACE] / [ENTER] / [R] untuk restart, [M] untuk Menu</div>
+      </div>
+    </div>
+
+    <!-- Pause Screen Overlay -->
+    <div id="pauseScreen" class="overlay-screen">
+      <div class="pause-screen-card">
+        <h2 class="pause-title" data-i18n="pauseTitle">GAME DIJEDA</h2>
+        <p class="pause-desc" data-i18n="pauseDesc">Tekan [P] atau [ESC] untuk melanjutkan</p>
+        <div class="screen-btn-row">
+          <button id="btnResume" class="pixel-btn resume-btn" data-i18n="btnResume">LANJUTKAN</button>
+          <button id="btnMenuPause" class="pixel-btn menu-btn" data-i18n="btnMenuPause">🏠 MENU / GANTI LEVEL</button>
+        </div>
+        <div class="controls-hint pause-hint" data-i18n="pauseHint">Tekan [M] untuk kembali ke Menu Utama</div>
+      </div>
+    </div>
+
+    <!-- Mobile Touch Controls (Landscape Two-Thumb Layout) -->
+    <div id="mobileControls" class="mobile-controls">
+      <!-- Left Side: D-Pad -->
+      <div class="dpad-cluster">
+        <div class="dpad-row">
+          <button id="btnTouchUp" class="touch-btn dpad-btn" aria-label="Naik">▲</button>
+        </div>
+        <div class="dpad-row middle">
+          <button id="btnTouchLeft" class="touch-btn dpad-btn" aria-label="Mundur">◀</button>
+          <div class="dpad-center"></div>
+          <button id="btnTouchRight" class="touch-btn dpad-btn" aria-label="Maju">▶</button>
+        </div>
+        <div class="dpad-row">
+          <button id="btnTouchDown" class="touch-btn dpad-btn" aria-label="Turun">▼</button>
+        </div>
+      </div>
+
+      <!-- Right Side: Action / Ult Button -->
+      <div class="action-cluster">
+        <button id="btnTouchSurvive" class="touch-btn survive-btn" aria-label="Aktifkan Survive Skill">
+          <span class="touch-btn-emoji">🛡️</span>
+          <span>DEF</span>
+        </button>
+        <button id="btnTouchUlt" class="touch-btn ult-btn" aria-label="Aktifkan Stellar Blaster">
+          <img src="assets/images/ult_icon.png" alt="Ult" class="touch-ult-thumb">
+          <span>ULT</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Global Leaderboard Modal Overlay -->
+    <div id="leaderboardModal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-tag">📡 GALACTIC COMM LINK</span>
+            <h2 class="modal-title" data-i18n="modalTitle">🏆 TOP 10 PILOT GLOBAL</h2>
+          </div>
+          <button id="btnCloseLeaderboard" class="modal-close-btn" aria-label="Tutup">✕</button>
+        </div>
+        <div class="leaderboard-table-container">
+          <div id="leaderboardLoading" class="leaderboard-loading">
+            <span class="pulse-text" data-i18n="loadingText">📡 MENGAMBIL DATA DARI SATELIT...</span>
+          </div>
+          <table id="leaderboardTable" class="leaderboard-table hidden">
+            <thead>
+              <tr>
+                <th class="col-rank">RANK</th>
+                <th class="col-name" data-i18n="colPilot">PILOT</th>
+                <th class="col-diff" data-i18n="colDiff">MODE</th>
+                <th class="col-score" data-i18n="colScore">SKOR</th>
+                <th class="col-time" data-i18n="colSurvived">SURVIVED</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+          <div id="leaderboardEmpty" class="leaderboard-empty hidden" data-i18n="emptyText">
+            Belum ada rekor yang tercatat. Jadilah yang pertama!
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btnRefreshLeaderboard" class="pixel-btn small-btn" data-i18n="btnRefresh">↻ REFRESH</button>
+          <button id="btnCloseLeaderboardBottom" class="pixel-btn small-btn cancel-btn" data-i18n="btnClose">✕ TUTUP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flight Manual / How to Play Modal Overlay -->
+    <div id="howToPlayModal" class="modal-overlay hidden">
+      <div class="modal-card modal-help-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-tag">🕹️ FLIGHT ACADEMY MANUAL</span>
+            <h2 class="modal-title" data-i18n="howToPlayModalTitle">PANDUAN KONTROL & CARA MAIN</h2>
+          </div>
+          <button id="btnCloseHowToPlay" class="modal-close-btn" aria-label="Tutup">✕</button>
+        </div>
+        <div class="modal-body-scroll">
+          <div class="help-section">
+            <h4 class="help-section-title" data-i18n="helpSecControls">🎮 KONTROL PENERBANGAN</h4>
+            <div class="help-grid">
+              <div class="help-item">
+                <span class="help-key-badge">W / S</span>
+                <div class="help-item-desc" data-i18n="helpUpDown">Manuver Naik / Turun (atau Panah Atas/Bawah)</div>
+              </div>
+              <div class="help-item">
+                <span class="help-key-badge">A / D</span>
+                <div class="help-item-desc" data-i18n="helpLeftRight">Maju / Mundur (atau Panah Kiri/Kanan)</div>
+              </div>
+              <div class="help-item">
+                <span class="help-key-badge">AUTO</span>
+                <div class="help-item-desc" data-i18n="helpAutoFire">Tembakan otomatis meluncur ke kanan non-stop</div>
+              </div>
+              <div class="help-item">
+                <span class="help-key-badge highlight">SPACE / SHIFT</span>
+                <div class="help-item-desc" data-i18n="helpUlt">Stellar Blaster (Laser Layar Penuh saat Ult penuh)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="help-section">
+            <h4 class="help-section-title" data-i18n="helpSecPowerups">⚡ POWER-UP & ITEM</h4>
+            <div class="help-powerup-list">
+              <div class="help-powerup-row">
+                <img src="assets/images/cyber_heart.png" alt="Cyber Heart" class="help-icon-thumb">
+                <div class="help-powerup-text">
+                  <span class="powerup-name">CYBER HEART</span>
+                  <span class="powerup-desc" data-i18n="powerupHeartDesc">Memulihkan 1 nyawa pesawat</span>
+                </div>
+              </div>
+              <div class="help-powerup-row">
+                <img src="assets/images/nova_icon.png" alt="Nova Starburst" class="help-icon-thumb">
+                <div class="help-powerup-text">
+                  <span class="powerup-name">NOVA STARBURST</span>
+                  <span class="powerup-desc" data-i18n="powerupNovaDesc">Menambah tembakan menyebar (Spread Shot)</span>
+                </div>
+              </div>
+              <div class="help-powerup-row">
+                <img src="assets/images/shield_icon.png" alt="Cosmic Shield" class="help-icon-thumb">
+                <div class="help-powerup-text">
+                  <span class="powerup-name">COSMIC SHIELD</span>
+                  <span class="powerup-desc" data-i18n="powerupShieldDesc">Perisai pelindung dari tabrakan meteor & proyektil</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btnCloseHowToPlayBottom" class="pixel-btn small-btn" data-i18n="btnCloseHelp">SIAP TERBANG 🚀</button>
+        </div>
+      </div>
+    </div>
+    <!-- Boss Codex Modal (100 Bosses Catalog Viewer) -->
+    <div id="bossCodexModal" class="modal-overlay hidden">
+      <div class="modal-card modal-codex-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-tag">👾 ARCHIVE // STARFALL BREAKOUT</span>
+            <h2 class="modal-title">KODEX 100 BOS & MINIBOS</h2>
+          </div>
+          <button id="btnCloseBossCodex" class="modal-close-btn" aria-label="Tutup">✕</button>
+        </div>
+        <div class="codex-tabs-row">
+          <button type="button" class="codex-tab-btn active" data-tier="easy">EASY (#001–#025)</button>
+          <button type="button" class="codex-tab-btn" data-tier="normal">NORMAL (#026–#050)</button>
+          <button type="button" class="codex-tab-btn" data-tier="hard">HARD (#051–#075)</button>
+          <button type="button" class="codex-tab-btn" data-tier="hardcorez">HARDCOREZ (#076–#100)</button>
+        </div>
+        <div id="bossCodexScroll" class="modal-body-scroll codex-scroll">
+          <div id="bossCodexGrid" class="codex-grid">
+            <!-- Dynamically populated 25 cards per tier -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btnCloseBossCodexBottom" class="pixel-btn small-btn">TUTUP KODEX ✕</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Sound & Screen Controls -->
+    <div class="quick-toggles">
+      <button id="btnToggleDisplay" class="icon-toggle" title="Ganti Mode Tampilan (Cabinet / Full)">📺</button>
+      <button id="btnToggleLang" class="icon-toggle" title="Ganti Bahasa / Switch Language">ID</button>
+      <button id="btnToggleFullscreen" class="icon-toggle" title="Layar Penuh / Fullscreen">⛶</button>
+      <button id="btnToggleSound" class="icon-toggle" title="Toggle Suara">🔊</button>
+      <button id="btnTogglePause" class="icon-toggle" title="Jeda Game">⏸️</button>
+    </div>
+  </div>
+
+  <script src="js/audio.js"></script>
+  <script src="js/bosses.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
