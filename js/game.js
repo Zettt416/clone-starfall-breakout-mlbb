@@ -48,26 +48,58 @@
   loadAsset('boss_alien', 'assets/images/boss_eldritch_eye.png');
   loadAsset('explosion_sheet', 'assets/images/explosion_sheet.png');
 
+  // Dedicated Playable Ship Sprites
+  loadAsset('ship_stella_nova', 'assets/images/ship_stella_nova.png');
+  loadAsset('ship_aether_vanguard', 'assets/images/ship_aether_vanguard.png');
+  loadAsset('ship_chrono_phantom', 'assets/images/ship_chrono_phantom.png');
+
+  // Dedicated Big Boss Sprites
+  loadAsset('boss_crimson_annihilator', 'assets/images/boss_crimson_annihilator.png');
+  loadAsset('boss_void_singularity', 'assets/images/boss_void_singularity.png');
+  loadAsset('boss_astraea_archon', 'assets/images/boss_astraea_archon.png');
+
+  // Dedicated Character Power-Up Icons
+  loadAsset('powerup_hyperdrive', 'assets/images/powerup_hyperdrive.png');
+  loadAsset('powerup_plasma_spread', 'assets/images/powerup_plasma_spread.png');
+  loadAsset('powerup_heavy_flak', 'assets/images/powerup_heavy_flak.png');
+  loadAsset('powerup_tesla_coil', 'assets/images/powerup_tesla_coil.png');
+  loadAsset('powerup_quantum_clones', 'assets/images/powerup_quantum_clones.png');
+  loadAsset('powerup_void_needle', 'assets/images/powerup_void_needle.png');
+
   // Power-up types
   const BUFF_TYPES = {
     RAPID: { id: 'rapid', name: 'RAPID', color: '#ff2a85', symbol: '⚡', duration: 8.0 },
     MULTI: { id: 'multi', name: 'MULTI', color: '#00f3ff', symbol: '✦', duration: 9.0 },
     PIERCE: { id: 'pierce', name: 'PIERCE', color: '#ffd000', symbol: '➤', duration: 7.0 },
     BURST: { id: 'burst', name: 'BURST', color: '#ff7700', symbol: '💥', duration: 8.0 },
-    SHIELD: { id: 'shield', name: 'SHIELD', color: '#00f3ff', symbol: '🛡️', duration: 12.0 }
+    SHIELD: { id: 'shield', name: 'SHIELD', color: '#00f3ff', symbol: '🛡️', duration: 12.0 },
+    // Stella Nova Unique Powerups
+    HYPERDRIVE: { id: 'hyperdrive', name: 'HYPERDRIVE', color: '#ff2a85', symbol: '⚡', duration: 7.0, iconAsset: 'powerup_hyperdrive' },
+    PLASMA_SPREAD: { id: 'plasma_spread', name: '5-WAY PLASMA', color: '#00f3ff', symbol: '💥', duration: 8.0, iconAsset: 'powerup_plasma_spread' },
+    // Aether Vanguard Unique Powerups
+    HEAVY_FLAK: { id: 'heavy_flak', name: 'CLUSTER FLAK', color: '#ffaa00', symbol: '💣', duration: 8.0, iconAsset: 'powerup_heavy_flak' },
+    TESLA_COIL: { id: 'tesla_coil', name: 'TESLA DISCHARGE', color: '#ffd000', symbol: '⚡', duration: 7.5, iconAsset: 'powerup_tesla_coil' },
+    // Chrono Phantom Unique Powerups
+    QUANTUM_CLONES: { id: 'quantum_clones', name: 'QUANTUM CLONES', color: '#e0aaff', symbol: '👥', duration: 8.5, iconAsset: 'powerup_quantum_clones' },
+    VOID_NEEDLE: { id: 'void_needle', name: 'VOID NEEDLES', color: '#b5179e', symbol: '🗡️', duration: 7.0, iconAsset: 'powerup_void_needle' }
   };
 
-  // Difficulty Level Configurations
+  // Difficulty Level Configurations (Tuning Powerups, Enemy HP, Speed & Fast Scouts)
   const DIFFICULTY_CONFIGS = {
     easy: {
       label: 'EASY',
       icon: '🟢',
       lives: 4,
       scoreMultiplier: 0.8,
+      powerupDropRate: 0.35,
+      meteorHpMult: 0.8,
       meteorSpeedMult: 0.82,
       meteorSpawnRateMult: 1.25,
       bossHpMult: 0.75,
       bossShootIntervalMult: 1.35,
+      heartDropWeight: 0.22,
+      survivalDropWeight: 0.22,
+      fastEnemySpawnRate: 0.05,
       revengeBullets: false,
       touhouDanmaku: false,
       hurtboxScale: 0.75
@@ -77,10 +109,15 @@
       icon: '🔵',
       lives: 3,
       scoreMultiplier: 1.0,
+      powerupDropRate: 0.25,
+      meteorHpMult: 1.0,
       meteorSpeedMult: 1.0,
       meteorSpawnRateMult: 1.0,
       bossHpMult: 1.0,
       bossShootIntervalMult: 1.0,
+      heartDropWeight: 0.12,
+      survivalDropWeight: 0.16,
+      fastEnemySpawnRate: 0.14,
       revengeBullets: false,
       touhouDanmaku: false,
       hurtboxScale: 0.7
@@ -90,11 +127,16 @@
       icon: '🔴',
       lives: 3,
       scoreMultiplier: 1.5,
+      powerupDropRate: 0.18,
+      meteorHpMult: 1.35,
       meteorSpeedMult: 1.22,
       meteorSpawnRateMult: 0.82,
       bossHpMult: 1.3,
       bossShootIntervalMult: 0.8,
-      revengeBullets: false,
+      heartDropWeight: 0.08,
+      survivalDropWeight: 0.12,
+      fastEnemySpawnRate: 0.25,
+      revengeBullets: true,
       touhouDanmaku: false,
       hurtboxScale: 0.65
     },
@@ -103,10 +145,15 @@
       icon: '🟣',
       lives: 2,
       scoreMultiplier: 2.5,
+      powerupDropRate: 0.12,
+      meteorHpMult: 1.75,
       meteorSpeedMult: 1.38,
       meteorSpawnRateMult: 0.68,
       bossHpMult: 1.6,
       bossShootIntervalMult: 0.65,
+      heartDropWeight: 0.04,
+      survivalDropWeight: 0.08,
+      fastEnemySpawnRate: 0.38,
       revengeBullets: true,
       touhouDanmaku: true,
       hurtboxScale: 0.45,
@@ -114,7 +161,7 @@
     }
   };
 
-  // Starship / Character Roster (Each with a unique survival skill & ultimate)
+  // Starship / Character Roster (Unique Real Arcade Sprites, Dedicated Power-Ups & Skills)
   const SHIPS_CONFIG = {
     stella_nova: {
       id: 'stella_nova',
@@ -123,14 +170,17 @@
       badgeClass: 'badge-interceptor',
       color: '#00f3ff',
       filter: 'none',
-      speed: 320,
-      firepowerLabel: 'TWIN CANNON',
-      hpLabel: 'STANDARD',
+      avatarSrc: 'assets/images/ship_stella_nova.png',
+      spriteKey: 'ship_stella_nova',
+      speed: 330,
+      firepowerLabel: 'TWIN PLASMA CANNON',
+      hpLabel: 'STANDARD (3 LIVES)',
       extraLives: 0,
+      uniquePowerups: ['HYPERDRIVE', 'PLASMA_SPREAD'],
       surviveName: 'COSMIC SHIELD',
       surviveDesc: 'COSMIC AEGIS SHIELD (3D FORCEFIELD)',
       ultName: 'STELLAR BLASTER',
-      ultDesc: 'STELLAR BLASTER BEAM'
+      ultDesc: 'STELLAR BLASTER HORIZONTAL BEAM'
     },
     aether_vanguard: {
       id: 'aether_vanguard',
@@ -138,15 +188,18 @@
       class: 'DREADNOUGHT',
       badgeClass: 'badge-dreadnought',
       color: '#ffd000',
-      filter: 'hue-rotate(180deg) saturate(1.4) brightness(1.1)',
-      speed: 270,
-      firepowerLabel: 'TRIPLE FLAK',
-      hpLabel: '+1 EXTRA LIFE',
+      filter: 'none',
+      avatarSrc: 'assets/images/ship_aether_vanguard.png',
+      spriteKey: 'ship_aether_vanguard',
+      speed: 275,
+      firepowerLabel: 'EXPLOSIVE FLAK SPREAD',
+      hpLabel: '+1 ARMOR LIFE (4 LIVES)',
       extraLives: 1,
+      uniquePowerups: ['HEAVY_FLAK', 'TESLA_COIL'],
       surviveName: 'NANITE MATRIX',
-      surviveDesc: 'NANITE PHASE BARRIER (PULSE CLEAR)',
+      surviveDesc: 'NANITE PHASE BARRIER (EMP PULSE CLEAR)',
       ultName: 'CLUSTER BARRAGE',
-      ultDesc: 'HEAVY CLUSTER BARRAGE'
+      ultDesc: 'HEAVY CLUSTER BARRAGE BOMBS'
     },
     chrono_phantom: {
       id: 'chrono_phantom',
@@ -154,15 +207,18 @@
       class: 'RECON GHOST',
       badgeClass: 'badge-ghost',
       color: '#b844ff',
-      filter: 'hue-rotate(270deg) brightness(1.2) contrast(1.1)',
-      speed: 390,
-      firepowerLabel: 'NEEDLE PIERCE',
-      hpLabel: 'FAST ULT CHARGE',
+      filter: 'none',
+      avatarSrc: 'assets/images/ship_chrono_phantom.png',
+      spriteKey: 'ship_chrono_phantom',
+      speed: 395,
+      firepowerLabel: 'TACHYON NEEDLE BEAM',
+      hpLabel: 'HIGH MOBILITY (3 LIVES)',
       extraLives: 0,
+      uniquePowerups: ['QUANTUM_CLONES', 'VOID_NEEDLE'],
       surviveName: 'CHRONO WARP',
-      surviveDesc: 'TEMPORAL WARP (70% SLOW-MO)',
+      surviveDesc: 'TEMPORAL WARP (70% TIME DILATION)',
       ultName: 'SINGULARITY RIFT',
-      ultDesc: 'SINGULARITY VORTEX'
+      ultDesc: 'SINGULARITY VORTEX FIELD'
     }
   };
 
@@ -859,8 +915,16 @@
         multi: 0,
         pierce: shipConf.id === 'chrono_phantom' ? 999999 : 0,
         burst: shipConf.id === 'aether_vanguard' ? 999999 : 0,
-        shield: 0
+        shield: 0,
+        // Character-Specific Unique Powerups
+        hyperdrive: 0,
+        plasma_spread: 0,
+        heavy_flak: 0,
+        tesla_coil: 0,
+        quantum_clones: 0,
+        void_needle: 0
       };
+      this.teslaTimer = 0;
       this.tilt = 0; // vertical banking angle
     }
 
@@ -906,8 +970,23 @@
         this.invulnerableTimer -= dt;
       }
 
-      // Auto-Shooting towards RIGHT
-      const currentFireInterval = this.buffs.rapid > 0 ? this.baseFireInterval * 0.5 : this.baseFireInterval;
+      // Automatic Tesla Coil Zap (Aether Vanguard)
+      if (this.buffs.tesla_coil > 0) {
+        this.teslaTimer -= dt;
+        if (this.teslaTimer <= 0) {
+          this.teslaTimer = 0.26;
+          fireTeslaChainLightning(this.x, this.y);
+        }
+      }
+
+      // Auto-Shooting towards RIGHT (Tuned for Hyperdrive / Rapid)
+      let currentFireInterval = this.baseFireInterval;
+      if (this.buffs.hyperdrive > 0) {
+        currentFireInterval = this.baseFireInterval * 0.35; // 3x speed overdrive
+      } else if (this.buffs.rapid > 0) {
+        currentFireInterval = this.baseFireInterval * 0.5;
+      }
+
       this.shootCooldown -= dt;
       if (this.shootCooldown <= 0) {
         this.shoot();
@@ -916,35 +995,68 @@
     }
 
     shoot() {
-      const isPierce = this.buffs.pierce > 0;
-      const isMulti = this.buffs.multi > 0;
-      const isBurst = this.buffs.burst > 0;
-      const isRapid = this.buffs.rapid > 0;
+      const isPierce = this.buffs.pierce > 0 || this.buffs.void_needle > 0;
+      const isMulti = this.buffs.multi > 0 || this.buffs.plasma_spread > 0;
+      const isBurst = this.buffs.burst > 0 || this.buffs.heavy_flak > 0;
+      const isRapid = this.buffs.rapid > 0 || this.buffs.hyperdrive > 0;
       const shipConf = SHIPS_CONFIG[state.selectedShip] || SHIPS_CONFIG.stella_nova;
 
       window.soundFx.playShoot();
-
       const cannonX = this.x + 20;
 
-      if (shipConf.id === 'aether_vanguard') {
-        // Heavy Flak Cannon: 3 explosive spread shells with burst splash!
-        projectiles.push(new Projectile(cannonX, this.y, 650, 0, isPierce, true, isRapid, true));
-        projectiles.push(new Projectile(cannonX - 4, this.y - 14, 620, -110, isPierce, true, isRapid, true));
-        projectiles.push(new Projectile(cannonX - 4, this.y + 14, 620, 110, isPierce, true, isRapid, true));
-      } else if (shipConf.id === 'chrono_phantom') {
-        // Needle Tachyon Laser: piercing high-speed needle beams!
-        projectiles.push(new Projectile(cannonX, this.y - 6, 920, 0, true, isBurst, isRapid, false));
-        projectiles.push(new Projectile(cannonX, this.y + 6, 920, 0, true, isBurst, isRapid, false));
-      } else {
-        // Stella Nova: Classic Twin Plasma Bolts or Triple Spread when MULTI
-        if (isMulti) {
-          projectiles.push(new Projectile(cannonX, this.y, 750, 0, isPierce, isBurst, isRapid, true));
-          projectiles.push(new Projectile(cannonX - 4, this.y - 12, 700, -140, isPierce, isBurst, isRapid, true));
-          projectiles.push(new Projectile(cannonX - 4, this.y + 12, 700, 140, isPierce, isBurst, isRapid, true));
+      // Helper for shooting a cluster of shots (supports Quantum Clones)
+      const spawnShotCluster = (originX, originY, scale = 1.0) => {
+        if (shipConf.id === 'aether_vanguard') {
+          // AETHER VANGUARD: Heavy Flak Explosive Artillery
+          if (this.buffs.heavy_flak > 0) {
+            projectiles.push(new Projectile(originX, originY, 680, 0, false, true, true, true));
+            projectiles.push(new Projectile(originX - 6, originY - 18, 640, -140, false, true, false, true));
+            projectiles.push(new Projectile(originX - 6, originY + 18, 640, 140, false, true, false, true));
+            projectiles.push(new Projectile(originX - 12, originY - 32, 600, -260, false, true, false, true));
+            projectiles.push(new Projectile(originX - 12, originY + 32, 600, 260, false, true, false, true));
+          } else {
+            projectiles.push(new Projectile(originX, originY, 650, 0, isPierce, true, isRapid, true));
+            projectiles.push(new Projectile(originX - 4, originY - 14, 620, -110, isPierce, true, isRapid, true));
+            projectiles.push(new Projectile(originX - 4, originY + 14, 620, 110, isPierce, true, isRapid, true));
+          }
+        } else if (shipConf.id === 'chrono_phantom') {
+          // CHRONO PHANTOM: Infinite Piercing Tachyon Needle Laser
+          if (this.buffs.void_needle > 0) {
+            projectiles.push(new Projectile(originX, originY, 1150, 0, true, false, true, false));
+            projectiles.push(new Projectile(originX, originY - 8, 1100, -45, true, false, true, false));
+            projectiles.push(new Projectile(originX, originY + 8, 1100, 45, true, false, true, false));
+          } else {
+            projectiles.push(new Projectile(originX, originY - 6, 920, 0, true, isBurst, isRapid, false));
+            projectiles.push(new Projectile(originX, originY + 6, 920, 0, true, isBurst, isRapid, false));
+          }
         } else {
-          projectiles.push(new Projectile(cannonX, this.y - 8, 750, 0, isPierce, isBurst, isRapid, false));
-          projectiles.push(new Projectile(cannonX, this.y + 8, 750, 0, isPierce, isBurst, isRapid, false));
+          // STELLA NOVA: Rapid Twin Cannon / 5-Way Plasma Spread
+          if (this.buffs.plasma_spread > 0) {
+            const angles = [-0.32, -0.16, 0, 0.16, 0.32];
+            angles.forEach(ang => {
+              projectiles.push(new Projectile(originX, originY, Math.cos(ang) * 760, Math.sin(ang) * 760, isPierce, isBurst, isRapid, true));
+            });
+          } else if (this.buffs.hyperdrive > 0) {
+            projectiles.push(new Projectile(originX + 6, originY - 10, 880, 0, true, isBurst, true, false));
+            projectiles.push(new Projectile(originX + 6, originY + 10, 880, 0, true, isBurst, true, false));
+            projectiles.push(new Projectile(originX - 4, originY, 820, 0, false, false, true, true));
+          } else if (isMulti) {
+            projectiles.push(new Projectile(originX, originY, 750, 0, isPierce, isBurst, isRapid, true));
+            projectiles.push(new Projectile(originX - 4, originY - 12, 700, -140, isPierce, isBurst, isRapid, true));
+            projectiles.push(new Projectile(originX - 4, originY + 12, 700, 140, isPierce, isBurst, isRapid, true));
+          } else {
+            projectiles.push(new Projectile(originX, originY - 8, 750, 0, isPierce, isBurst, isRapid, false));
+            projectiles.push(new Projectile(originX, originY + 8, 750, 0, isPierce, isBurst, isRapid, false));
+          }
         }
+      };
+
+      spawnShotCluster(cannonX, this.y);
+
+      // Quantum Hologram Clones: Dual flanking shadow ships mirror the attack!
+      if (this.buffs.quantum_clones > 0) {
+        spawnShotCluster(cannonX - 12, this.y - 34, 0.7);
+        spawnShotCluster(cannonX - 12, this.y + 34, 0.7);
       }
 
       createMuzzleSparks(cannonX + 4, this.y);
@@ -978,20 +1090,33 @@
       ctx.closePath();
       ctx.fill();
 
-      // 2. Starfighter Hull (16-Bit Pixel Art PNG or Procedural Fallback)
+      // 2. Starfighter Hull (Unique High-Res Arcade Sprites for Each Ship)
       const shipConf = SHIPS_CONFIG[state.selectedShip] || SHIPS_CONFIG.stella_nova;
-      if (assets.images['player_ship'] && assets.images['player_ship'].complete && assets.images['player_ship'].naturalWidth > 0) {
-        const shipImg = assets.images['player_ship'];
-        const targetW = 62;
+      const spriteKey = 'ship_' + (shipConf.id || 'stella_nova');
+      const shipImg = assets.images[spriteKey] || assets.images['player_ship'];
+
+      if (shipImg && shipImg.complete && shipImg.naturalWidth > 0) {
+        const targetW = shipConf.id === 'aether_vanguard' ? 68 : shipConf.id === 'chrono_phantom' ? 64 : 60;
         const nw = shipImg.naturalWidth || shipImg.width;
         const nh = shipImg.naturalHeight || shipImg.height;
         const targetH = targetW * (nh / nw);
+
         ctx.save();
-        if (shipConf.filter && shipConf.filter !== 'none') {
-          ctx.filter = shipConf.filter;
-        }
         ctx.drawImage(shipImg, -targetW / 2 + 2, -targetH / 2, targetW, targetH);
         ctx.restore();
+
+        // Draw Quantum Clones (Translucent Holographic Shadow Ships)
+        if (this.buffs.quantum_clones > 0) {
+          [-34, 34].forEach(offsetY => {
+            ctx.save();
+            ctx.globalAlpha = 0.55 + Math.sin(Date.now() * 0.01 + offsetY) * 0.15;
+            ctx.translate(-12, offsetY);
+            ctx.shadowColor = '#e0aaff';
+            ctx.shadowBlur = 12;
+            ctx.drawImage(shipImg, -targetW * 0.4, -targetH * 0.4, targetW * 0.8, targetH * 0.8);
+            ctx.restore();
+          });
+        }
       } else {
         // Procedural Starfighter Wings & Stabilizers
         ctx.fillStyle = '#ff2a85';
@@ -1332,8 +1457,12 @@
     }
 
     update(dt) {
+      this.time = (this.time || 0) + dt;
       this.x -= this.speed * dt;
       this.y += this.vy * dt;
+      if (this.isDrone) {
+        this.y += Math.sin(this.time * 6.5) * 2.2;
+      }
       this.rotation += this.rotSpeed * dt;
 
       if (this.x < -60) {
@@ -1397,7 +1526,34 @@
       ctx.translate(this.x, this.y);
       ctx.rotate(this.rotation);
 
-      if (this.type === 'star') {
+      if (this.isDrone) {
+        // Fast Robotic Scout Interceptor Drone
+        ctx.fillStyle = '#ff0055';
+        ctx.shadowColor = '#ff0055';
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.moveTo(-16, 0);
+        ctx.lineTo(14, -10);
+        ctx.lineTo(8, 0);
+        ctx.lineTo(14, 10);
+        ctx.closePath();
+        ctx.fill();
+
+        // Glowing Core
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Twin Thruster Jet Exhaust
+        ctx.fillStyle = '#00f3ff';
+        ctx.beginPath();
+        ctx.moveTo(14, -4);
+        ctx.lineTo(24 + Math.random() * 8, 0);
+        ctx.lineTo(14, 4);
+        ctx.closePath();
+        ctx.fill();
+      } else if (this.type === 'star') {
         if (assets.images['stellar_star'] && assets.images['stellar_star'].complete && assets.images['stellar_star'].naturalWidth > 0) {
           const d = this.radius * 2.4;
           ctx.drawImage(assets.images['stellar_star'], -d / 2, -d / 2, d, d);
@@ -1491,8 +1647,11 @@
         window.soundFx.playShieldPickup();
       } else {
         const buffKey = this.kind.toLowerCase();
-        player.buffs[buffKey] = (BUFF_TYPES[this.kind] && BUFF_TYPES[this.kind].duration) || 10.0;
-        createFloatingText(`${this.kind}!`, this.x, this.y - 10, BUFF_TYPES[this.kind].color);
+        const duration = (BUFF_TYPES[this.kind] && BUFF_TYPES[this.kind].duration) || 10.0;
+        player.buffs[buffKey] = duration;
+        const displayName = (BUFF_TYPES[this.kind] && BUFF_TYPES[this.kind].name) || this.kind;
+        const color = (BUFF_TYPES[this.kind] && BUFF_TYPES[this.kind].color) || '#00f3ff';
+        createFloatingText(`${displayName}!`, this.x, this.y - 10, color);
       }
       updateBuffDisplay();
     }
@@ -1534,6 +1693,9 @@
       else if (this.kind === 'MULTI') iconImg = assets.images['powerup_multi'];
       else if (this.kind === 'PIERCE') iconImg = assets.images['powerup_pierce'];
       else if (this.kind === 'BURST') iconImg = assets.images['powerup_burst'];
+      else if (BUFF_TYPES[this.kind] && BUFF_TYPES[this.kind].iconAsset) {
+        iconImg = assets.images[BUFF_TYPES[this.kind].iconAsset];
+      }
 
       if (iconImg && iconImg.complete && iconImg.naturalWidth > 0) {
         const d = (this.radius - 2.5) * 2;
@@ -3014,8 +3176,19 @@
       const halfW = w / 2;
       const halfH = h / 2;
 
-      const spriteKey = 'boss_' + (this.archetype || 'mecha');
-      const sprite = assets.images[spriteKey] || assets.images.bigboss;
+      // Select Dedicated Unique Big Boss Sprite Assets
+      let spriteKey = 'boss_' + (this.archetype || 'mecha');
+      const bName = this.name || '';
+
+      if (bName.includes('Annihilator') || bName.includes('Dreadnought') || bName.includes('Apex') || bName.includes('Flagship') || bName.includes('Warlord') || bName.includes('Carrier')) {
+        spriteKey = 'boss_crimson_annihilator';
+      } else if (this.archetype === 'monster' || bName.includes('Singularity') || bName.includes('Leviathan') || bName.includes('Maw') || bName.includes('Goliath')) {
+        spriteKey = 'boss_void_singularity';
+      } else if (this.archetype === 'humanoid' || bName.includes('Astraea') || bName.includes('Archon') || bName.includes('Ex-Machina') || bName.includes('Zephyr')) {
+        spriteKey = 'boss_astraea_archon';
+      }
+
+      const sprite = assets.images[spriteKey] || assets.images['boss_' + (this.archetype || 'mecha')] || assets.images.bigboss;
       if (sprite && sprite.complete && sprite.naturalWidth > 0) {
         // Soft radiant aura behind the celestial mecha titan
         const auraGrad = ctx.createRadialGradient(0, 0, 20, 0, 0, halfW * 0.95);
@@ -3277,6 +3450,139 @@
     state.bgCurrent.b += (state.bgTarget.b - state.bgCurrent.b) * lerpSpeed;
   }
 
+  // --- Dynamic Multi-Layer Parallax Stage Environments per Level ---
+  function drawStageParallaxBackdrop(ctx) {
+    if (state.activeBoss || state.bossWarningActive) return; // Boss arena overrides backdrop
+    const t = Date.now() * 0.0004;
+
+    ctx.save();
+    if (state.difficulty === 'easy') {
+      // --- Level 1 (EASY): Azure Sector & Ringed Gas Giant Planet ---
+      const planetX = CANVAS_WIDTH * 0.82;
+      const planetY = 130;
+      const planetR = 48;
+
+      // Atmospheric Glow
+      const atmGrad = ctx.createRadialGradient(planetX, planetY, planetR * 0.8, planetX, planetY, planetR * 1.5);
+      atmGrad.addColorStop(0, 'rgba(0, 243, 255, 0.22)');
+      atmGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = atmGrad;
+      ctx.beginPath();
+      ctx.arc(planetX, planetY, planetR * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Planet Sphere
+      const pGrad = ctx.createLinearGradient(planetX - planetR, planetY - planetR, planetX + planetR, planetY + planetR);
+      pGrad.addColorStop(0, '#0a2540');
+      pGrad.addColorStop(0.5, '#00d2ff');
+      pGrad.addColorStop(1, '#001a33');
+      ctx.fillStyle = pGrad;
+      ctx.beginPath();
+      ctx.arc(planetX, planetY, planetR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Translucent Planetary Ring
+      ctx.save();
+      ctx.translate(planetX, planetY);
+      ctx.rotate(-0.35);
+      ctx.strokeStyle = 'rgba(0, 243, 255, 0.35)';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, planetR * 2.1, 14, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+    } else if (state.difficulty === 'normal') {
+      // --- Level 2 (NORMAL): Solar Nebula & Cratered Moon ---
+      const neb1 = ctx.createRadialGradient(CANVAS_WIDTH * 0.75, 140, 10, CANVAS_WIDTH * 0.75, 140, 220);
+      neb1.addColorStop(0, 'rgba(184, 68, 255, 0.18)');
+      neb1.addColorStop(0.5, 'rgba(255, 42, 133, 0.08)');
+      neb1.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb1;
+      ctx.beginPath();
+      ctx.arc(CANVAS_WIDTH * 0.75, 140, 220, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Distant Cratered Asteroid Moon
+      const moonX = CANVAS_WIDTH * 0.80;
+      const moonY = 320;
+      const moonR = 38;
+      const mGrad = ctx.createLinearGradient(moonX - moonR, moonY, moonX + moonR, moonY);
+      mGrad.addColorStop(0, '#2d1840');
+      mGrad.addColorStop(0.6, '#ffd000');
+      mGrad.addColorStop(1, '#11051a');
+      ctx.fillStyle = mGrad;
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
+      ctx.fill();
+
+    } else if (state.difficulty === 'hard') {
+      // --- Level 3 (HARD): Crimson Supernova Core & Solar Flares ---
+      const starX = CANVAS_WIDTH * 0.84;
+      const starY = 240;
+      const starR = 55;
+
+      // Pulsating Supernova Corona
+      const sGrad = ctx.createRadialGradient(starX, starY, starR * 0.6, starX, starY, starR * 2.5);
+      sGrad.addColorStop(0, 'rgba(255, 100, 0, 0.32)');
+      sGrad.addColorStop(0.45, 'rgba(255, 0, 85, 0.14)');
+      sGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = sGrad;
+      ctx.beginPath();
+      ctx.arc(starX, starY, starR * 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Blazing Core
+      ctx.fillStyle = '#ff2200';
+      ctx.beginPath();
+      ctx.arc(starX, starY, starR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Solar Corona Spikes
+      ctx.strokeStyle = 'rgba(255, 140, 0, 0.18)';
+      ctx.lineWidth = 2;
+      for (let s = 0; s < 8; s++) {
+        const a = t * 2 + (s * Math.PI / 4);
+        ctx.beginPath();
+        ctx.moveTo(starX + Math.cos(a) * starR, starY + Math.sin(a) * starR);
+        ctx.lineTo(starX + Math.cos(a) * (starR + 45), starY + Math.sin(a) * (starR + 45));
+        ctx.stroke();
+      }
+
+    } else {
+      // --- Level 4 (HARDCOREZ): Void Singularity / Event Horizon Black Hole ---
+      const bhX = CANVAS_WIDTH * 0.80;
+      const bhY = 240;
+      const bhR = 48;
+
+      // Accretion Disk Swirl
+      const diskGrad = ctx.createRadialGradient(bhX, bhY, bhR, bhX, bhY, bhR * 3.2);
+      diskGrad.addColorStop(0, 'rgba(224, 170, 255, 0.35)');
+      diskGrad.addColorStop(0.4, 'rgba(123, 44, 191, 0.18)');
+      diskGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = diskGrad;
+      ctx.beginPath();
+      ctx.arc(bhX, bhY, bhR * 3.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Relativistic Ultraviolet Photon Ring
+      ctx.strokeStyle = '#e0aaff';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#e0aaff';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.arc(bhX, bhY, bhR + 4, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Pitch Black Singularity Void Core
+      ctx.fillStyle = '#020108';
+      ctx.beginPath();
+      ctx.arc(bhX, bhY, bhR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
   function drawBossAtmosphereBackdrop(ctx) {
     if (!state.activeBoss && !state.bossWarningActive) return;
     const isBig = state.activeBoss ? (state.activeBoss.type === 'bigboss') : (state.bossCycle % 2 === 0);
@@ -3493,23 +3799,38 @@
   }
 
   function rollPowerUpDrop(x, y, meteorType) {
-    let dropChance = 0.14;
-    if (meteorType === 'star') dropChance = 1.0;
-    if (meteorType === 'armored') dropChance = 0.5;
-    if (meteorType === 'wall_block') dropChance = 0.1;
+    const conf = DIFFICULTY_CONFIGS[state.difficulty] || DIFFICULTY_CONFIGS.normal;
+    let baseDropRate = conf.powerupDropRate || 0.22;
 
-    if (Math.random() < dropChance) {
+    if (meteorType === 'star') baseDropRate = 1.0;
+    else if (meteorType === 'armored') baseDropRate = Math.min(1.0, baseDropRate * 2.2);
+    else if (meteorType === 'wall_block') baseDropRate = baseDropRate * 0.45;
+
+    if (Math.random() < baseDropRate) {
       let kind;
       if (meteorType === 'star') {
         kind = 'STAR';
       } else {
         const roll = Math.random();
-        if (roll < 0.22) kind = 'RAPID';
-        else if (roll < 0.42) kind = 'MULTI';
-        else if (roll < 0.62) kind = 'PIERCE';
-        else if (roll < 0.80) kind = 'BURST';
-        else if (roll < 0.93) kind = 'SHIELD';
-        else kind = 'HEART';
+        const heartThreshold = conf.heartDropWeight || 0.12;
+        const shieldThreshold = heartThreshold + (conf.survivalDropWeight || 0.15);
+
+        if (roll < heartThreshold) {
+          kind = 'HEART';
+        } else if (roll < shieldThreshold) {
+          kind = 'SHIELD';
+        } else {
+          // 65% chance to drop character-specific powerups, 35% generic powerup
+          const shipConf = SHIPS_CONFIG[state.selectedShip] || SHIPS_CONFIG.stella_nova;
+          const charPool = shipConf.uniquePowerups || ['RAPID', 'MULTI'];
+
+          if (Math.random() < 0.65 && charPool.length > 0) {
+            kind = charPool[Math.floor(Math.random() * charPool.length)];
+          } else {
+            const genericPool = ['RAPID', 'MULTI', 'PIERCE', 'BURST'];
+            kind = genericPool[Math.floor(Math.random() * genericPool.length)];
+          }
+        }
       }
       powerUps.push(new PowerUp(x, y, kind));
     }
@@ -3547,11 +3868,14 @@
       const spawnX = CANVAS_WIDTH + 40;
       const roll = Math.random();
 
-      if (roll < 0.08) {
+      const fastRate = (conf.fastEnemySpawnRate || 0.12) * Math.min(2.0, 1.0 + state.survivalTime * 0.007);
+      if (roll < fastRate) {
+        meteors.push(new Meteor(spawnX, spawnY, 'fast_scout'));
+      } else if (roll < fastRate + 0.08) {
         meteors.push(new Meteor(spawnX, spawnY, 'star'));
-      } else if (roll < 0.28) {
+      } else if (roll < fastRate + 0.28) {
         meteors.push(new Meteor(spawnX, spawnY, 'armored'));
-      } else if (roll < 0.60) {
+      } else if (roll < fastRate + 0.58) {
         meteors.push(new Meteor(spawnX, spawnY, 'medium'));
       } else {
         meteors.push(new Meteor(spawnX, spawnY, 'normal'));
@@ -4153,6 +4477,9 @@
     const bgB = Math.round(state.bgCurrent.b);
     ctx.fillStyle = `rgb(${bgR}, ${bgG}, ${bgB})`;
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // Dynamic Multi-Layer Parallax Stage Backdrop per Level
+    drawStageParallaxBackdrop(ctx);
 
     // Celestial Boss Arena Backdrop (Eclipse / Ion Storm)
     if (state.activeBoss || state.bossWarningActive) {
@@ -4804,7 +5131,14 @@
     if (statHpVal) statHpVal.textContent = conf.hpLabel;
     if (shipSurviveDesc) shipSurviveDesc.textContent = conf.surviveDesc;
     if (shipUltDesc) shipUltDesc.textContent = conf.ultDesc;
-    if (shipAvatarImg) shipAvatarImg.style.filter = conf.filter;
+    if (shipAvatarImg) {
+      if (conf.avatarSrc) {
+        shipAvatarImg.src = conf.avatarSrc;
+        shipAvatarImg.style.filter = 'none';
+      } else {
+        shipAvatarImg.style.filter = conf.filter;
+      }
+    }
 
     const btnTouchSurvive = document.getElementById('btnTouchSurvive');
     if (btnTouchSurvive) {
@@ -5147,6 +5481,16 @@
     setupInputs();
     window.gameState = state;
     window.startGame = startGame;
+    window.selectShip = function(id) {
+      if (SHIPS_CONFIG[id]) {
+        state.selectedShip = id;
+        localStorage.setItem('starfall_selected_ship', id);
+        updateShipCardUI();
+      }
+    };
+    window.setDifficulty = setDifficulty;
+    window.selectDifficulty = setDifficulty;
+    window.getPlayer = function() { return player; };
 
     const savedDiff = localStorage.getItem('starfall_difficulty');
     if (savedDiff && DIFFICULTY_CONFIGS[savedDiff]) {

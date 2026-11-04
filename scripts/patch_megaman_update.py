@@ -298,3 +298,4 @@ with open('js/game.js', 'w', encoding='utf-8') as f:
     f.write(text)
 
 print('Applied Mega Man update state machine successfully!')
+
