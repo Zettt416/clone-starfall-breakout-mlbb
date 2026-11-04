@@ -19,3 +19,4 @@ with open('js/game.js', 'w', encoding='utf-8') as f:
     f.writelines(lines)
 
 print('Added boss assets to loadAsset successfully!')
+
