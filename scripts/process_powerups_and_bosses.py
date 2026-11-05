@@ -126,3 +126,4 @@ for src_name, dst_name in bosses:
         print(f"Processed boss {src_name} -> {dst_path} (size: {res.size})")
 
 print("All powerup and boss assets successfully processed!")
+

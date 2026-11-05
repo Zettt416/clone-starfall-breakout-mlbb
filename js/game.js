@@ -161,7 +161,7 @@
     }
   };
 
-  // Starship / Character Roster (Unique Real Arcade Sprites, Dedicated Power-Ups & Skills)
+  // Starship / Character Roster (Streamlined, Clear Identity, Real Arcade Sprites)
   const SHIPS_CONFIG = {
     stella_nova: {
       id: 'stella_nova',
@@ -173,14 +173,16 @@
       avatarSrc: 'assets/images/ship_stella_nova.png',
       spriteKey: 'ship_stella_nova',
       speed: 330,
-      firepowerLabel: 'TWIN PLASMA CANNON',
-      hpLabel: 'STANDARD (3 LIVES)',
-      extraLives: 0,
-      uniquePowerups: ['HYPERDRIVE', 'PLASMA_SPREAD'],
+      descId: 'Lincah & Seimbang • Tembakan Plasma Cepat',
+      descEn: 'Agile & Balanced • Rapid Twin Plasma',
+      surviveShort: 'Cosmic Aegis',
+      ultShort: 'Stellar Blaster',
       surviveName: 'COSMIC SHIELD',
       surviveDesc: 'COSMIC AEGIS SHIELD (3D FORCEFIELD)',
       ultName: 'STELLAR BLASTER',
-      ultDesc: 'STELLAR BLASTER HORIZONTAL BEAM'
+      ultDesc: 'STELLAR BLASTER HORIZONTAL BEAM',
+      extraLives: 0,
+      uniquePowerups: ['HYPERDRIVE', 'PLASMA_SPREAD']
     },
     aether_vanguard: {
       id: 'aether_vanguard',
@@ -192,14 +194,16 @@
       avatarSrc: 'assets/images/ship_aether_vanguard.png',
       spriteKey: 'ship_aether_vanguard',
       speed: 275,
-      firepowerLabel: 'EXPLOSIVE FLAK SPREAD',
-      hpLabel: '+1 ARMOR LIFE (4 LIVES)',
-      extraLives: 1,
-      uniquePowerups: ['HEAVY_FLAK', 'TESLA_COIL'],
+      descId: 'Armor Berat (+1 Nyawa) • Meriam Flak Area',
+      descEn: 'Heavy Armor (+1 Life) • Area Flak Cannon',
+      surviveShort: 'Nanite Barrier',
+      ultShort: 'Cluster Barrage',
       surviveName: 'NANITE MATRIX',
       surviveDesc: 'NANITE PHASE BARRIER (EMP PULSE CLEAR)',
       ultName: 'CLUSTER BARRAGE',
-      ultDesc: 'HEAVY CLUSTER BARRAGE BOMBS'
+      ultDesc: 'HEAVY CLUSTER BARRAGE BOMBS',
+      extraLives: 1,
+      uniquePowerups: ['HEAVY_FLAK', 'TESLA_COIL']
     },
     chrono_phantom: {
       id: 'chrono_phantom',
@@ -211,14 +215,16 @@
       avatarSrc: 'assets/images/ship_chrono_phantom.png',
       spriteKey: 'ship_chrono_phantom',
       speed: 395,
-      firepowerLabel: 'TACHYON NEEDLE BEAM',
-      hpLabel: 'HIGH MOBILITY (3 LIVES)',
-      extraLives: 0,
-      uniquePowerups: ['QUANTUM_CLONES', 'VOID_NEEDLE'],
+      descId: 'Kecepatan Ekstrem • Jarum Laser Tembus',
+      descEn: 'Extreme Speed • Piercing Void Needles',
+      surviveShort: 'Chrono Warp (Slow-Mo)',
+      ultShort: 'Singularity Rift',
       surviveName: 'CHRONO WARP',
       surviveDesc: 'TEMPORAL WARP (70% TIME DILATION)',
       ultName: 'SINGULARITY RIFT',
-      ultDesc: 'SINGULARITY VORTEX FIELD'
+      ultDesc: 'SINGULARITY VORTEX FIELD',
+      extraLives: 0,
+      uniquePowerups: ['QUANTUM_CLONES', 'VOID_NEEDLE']
     }
   };
 
@@ -618,6 +624,7 @@
     }
 
     updateHudDifficultyBadge();
+    updateShipCardUI();
   }
 
   function toggleFullscreen() {
@@ -688,6 +695,43 @@
     if (modal) modal.classList.add('hidden');
   }
 
+  // Map Boss Catalog entries to real 32-bit transparent arcade PNGs
+  function getBossCodexImage(b) {
+    const bName = b.name || '';
+    if (b.isBig) {
+      if (bName.includes('Annihilator') || bName.includes('Dreadnought') || bName.includes('Apex') || bName.includes('Flagship') || bName.includes('Warlord') || bName.includes('Carrier') || bName.includes('Bastion')) {
+        return 'assets/images/boss_crimson_annihilator.png';
+      }
+      if (b.archetype === 'monster' || bName.includes('Singularity') || bName.includes('Leviathan') || bName.includes('Maw') || bName.includes('Goliath')) {
+        return 'assets/images/boss_void_singularity.png';
+      }
+      if (b.archetype === 'humanoid' || bName.includes('Astraea') || bName.includes('Archon') || bName.includes('Ex-Machina') || bName.includes('Zephyr') || bName.includes('Valkyrie')) {
+        return 'assets/images/boss_astraea_archon.png';
+      }
+    }
+    const archMap = {
+      spaceship: 'assets/images/boss_spaceship_dreadnought.png',
+      mecha: 'assets/images/boss_mecha_titan.png',
+      monster: 'assets/images/boss_alien_leviathan.png',
+      humanoid: 'assets/images/boss_humanoid_valkyrie.png',
+      alien: 'assets/images/boss_eldritch_eye.png'
+    };
+    return archMap[b.archetype] || 'assets/images/boss_alien_leviathan.png';
+  }
+
+  const codexAtkNames = {
+    plasma_twin: 'Twin Plasma',
+    plasma_burst: 'Plasma Burst',
+    curtain_fan: 'Curtain Fan',
+    railgun_laser: 'Railgun Laser',
+    railgun_heavy: 'Heavy Railgun',
+    spiral_danmaku: 'Spiral Danmaku',
+    escort_shield: 'Escort Barrier',
+    homing_missiles: 'Homing Missiles',
+    void_vortex: 'Void Vortex',
+    quantum_lasers: 'Quantum Laser'
+  };
+
   function renderBossCodex(tier) {
     activeCodexTier = tier;
     const grid = document.getElementById('bossCodexGrid');
@@ -702,34 +746,39 @@
       spaceship: '🛸 KAPAL',
       mecha: '🤖 MECHA',
       monster: '👾 MONSTER',
-      humanoid: '👤 ORANG',
+      humanoid: '👤 VALKYRIE',
       alien: '👁️ ALIEN'
     };
 
     grid.innerHTML = tierBosses.map(b => {
       const isBig = b.isBig;
-      const badgeClass = isBig ? 'codex-badge-big' : 'codex-badge-mini';
-      const tierText = isBig ? '👑 BIG' : '👾 MINI';
+      const tierText = isBig ? '👑 BIG BOSS' : '👾 MINIBOSS';
+      const rankClass = isBig ? 'big' : 'mini';
       const archText = archBadges[b.archetype] || '👾 ENEMY';
+      const imgSrc = getBossCodexImage(b);
+      const atkText = codexAtkNames[b.attack] || b.attack.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
       return `
-        <div class="codex-card" style="border-left: 3px solid ${b.color};">
+        <div class="codex-card" style="border-left: 4px solid ${b.color};">
           <div class="codex-card-top">
-            <span class="codex-id" style="color: ${b.color};">#${String(b.id).padStart(3, '0')}</span>
-            <div style="display: flex; gap: 4px;">
-              <span class="codex-badge" style="background: rgba(255,255,255,0.08); color: #fff;">${archText}</span>
-              <span class="codex-badge ${badgeClass}">${tierText}</span>
+            <div class="codex-id-wrap">
+              <span class="codex-id" style="color: ${b.color};">#${String(b.id).padStart(3, '0')}</span>
+              <span class="codex-rank-pill ${rankClass}">${tierText}</span>
             </div>
+            <span class="codex-arch-tag">${archText}</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
-            <img src="assets/images/boss_${b.archetype}.png" alt="${b.name}" style="width: 44px; height: 32px; object-fit: contain; filter: drop-shadow(0 0 4px ${b.color});">
-            <div>
+          <div class="codex-card-body">
+            <div class="codex-sprite-box" style="background: radial-gradient(circle, ${b.color}24 0%, rgba(10,14,28,0.85) 75%); border-color: ${b.color}55;">
+              <img src="${imgSrc}" alt="${b.name}" class="codex-sprite-img">
+            </div>
+            <div class="codex-info-col">
               <div class="codex-name">${b.name}</div>
               <div class="codex-title">${b.title}</div>
+              <div class="codex-stats-row">
+                <span class="codex-stat-pill"><span class="stat-icon">❤️</span> <strong>${b.baseHp} HP</strong></span>
+                <span class="codex-stat-pill"><span class="stat-icon">⚔️</span> <strong>${atkText}</strong></span>
+              </div>
             </div>
-          </div>
-          <div class="codex-stats-row">
-            <span>HP: <strong>${b.baseHp}</strong></span>
-            <span>ATK: <strong>${b.attack.toUpperCase()}</strong></span>
           </div>
         </div>
       `;
@@ -1443,6 +1492,15 @@
         this.vy = (Math.random() - 0.5) * 40;
         this.score = 60;
         this.color = '#ffd000';
+      } else if (type === 'fast_scout') {
+        this.isDrone = true;
+        this.radius = 16;
+        this.hp = 2;
+        this.maxHp = 2;
+        this.speed = 280 + Math.random() * 60;
+        this.vy = (Math.random() - 0.5) * 40;
+        this.score = 75;
+        this.color = '#ff0055';
       } else if (type === 'wall_block') {
         this.radius = 24;
         this.hp = 5;
@@ -1451,6 +1509,15 @@
         this.vy = 0;
         this.score = 50;
         this.color = '#452b69';
+      }
+
+      // Dynamic HP Scaling over time & difficulty
+      if (type !== 'star' && type !== 'wall_block') {
+        const conf = DIFFICULTY_CONFIGS[state.difficulty] || DIFFICULTY_CONFIGS.normal;
+        const timeHpScale = 1.0 + Math.min(2.0, state.survivalTime * 0.004);
+        const diffHpMult = conf.meteorHpMult || 1.0;
+        this.hp = Math.max(1, Math.round(this.hp * timeHpScale * diffHpMult));
+        this.maxHp = this.hp;
       }
 
       this.speed *= state.difficultyMultiplier;
@@ -3856,7 +3923,9 @@
       return;
     }
 
-    state.difficultyMultiplier = (1.0 + Math.min(2.5, state.score / 2500)) * conf.meteorSpeedMult;
+    const timeSpeedBonus = Math.min(1.5, state.survivalTime * 0.003);
+    const scoreSpeedBonus = Math.min(1.0, state.score / 8000);
+    state.difficultyMultiplier = (1.0 + timeSpeedBonus + scoreSpeedBonus) * conf.meteorSpeedMult;
 
     state.meteorSpawnTimer -= dt;
     const baseSpawnRate = Math.max(0.28, (1.1 / state.difficultyMultiplier) * conf.meteorSpawnRateMult);
@@ -5112,37 +5181,31 @@
     const shipAvatarImg = document.getElementById('shipAvatarImg');
     const shipClassBadge = document.getElementById('shipClassBadge');
     const shipNameText = document.getElementById('shipNameText');
-    const statSpeedVal = document.getElementById('statSpeedVal');
-    const statFireVal = document.getElementById('statFireVal');
-    const statHpVal = document.getElementById('statHpVal');
-    const shipSurviveDesc = document.getElementById('shipSurviveDesc');
-    const shipUltDesc = document.getElementById('shipUltDesc');
+    const shipPlaystyleDesc = document.getElementById('shipPlaystyleDesc');
+    const shipSurviveShort = document.getElementById('shipSurviveShort');
+    const shipUltShort = document.getElementById('shipUltShort');
 
     if (shipNameText) shipNameText.textContent = conf.name;
     if (shipClassBadge) {
       shipClassBadge.className = 'ship-class-badge ' + conf.badgeClass;
       shipClassBadge.textContent = conf.class;
     }
-    if (statSpeedVal) {
-      const speedLabel = conf.speed > 350 ? `HIGH (${conf.speed})` : conf.speed > 300 ? `BALANCED (${conf.speed})` : `HEAVY (${conf.speed})`;
-      statSpeedVal.textContent = speedLabel;
+    if (shipPlaystyleDesc) {
+      shipPlaystyleDesc.textContent = (state.lang === 'id' ? conf.descId : conf.descEn) || conf.descId;
     }
-    if (statFireVal) statFireVal.textContent = conf.firepowerLabel;
-    if (statHpVal) statHpVal.textContent = conf.hpLabel;
-    if (shipSurviveDesc) shipSurviveDesc.textContent = conf.surviveDesc;
-    if (shipUltDesc) shipUltDesc.textContent = conf.ultDesc;
+    if (shipSurviveShort) shipSurviveShort.textContent = conf.surviveShort || conf.surviveName;
+    if (shipUltShort) shipUltShort.textContent = conf.ultShort || conf.ultName;
+
     if (shipAvatarImg) {
       if (conf.avatarSrc) {
         shipAvatarImg.src = conf.avatarSrc;
         shipAvatarImg.style.filter = 'none';
-      } else {
-        shipAvatarImg.style.filter = conf.filter;
       }
     }
 
     const btnTouchSurvive = document.getElementById('btnTouchSurvive');
     if (btnTouchSurvive) {
-      btnTouchSurvive.title = `Survive Skill: ${conf.surviveName} [C]`;
+      btnTouchSurvive.title = `Survive Skill: ${conf.surviveShort || conf.surviveName} [C]`;
     }
   }
 

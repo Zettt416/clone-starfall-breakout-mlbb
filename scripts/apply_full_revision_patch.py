@@ -331,3 +331,4 @@ with open('js/game.js', 'w', encoding='utf-8') as f:
     f.write(text)
 
 print("ALL PATCHES APPLIED TO js/game.js!")
+

@@ -576,3 +576,4 @@ with open('js/game.js', 'w', encoding='utf-8') as f:
     f.write(text)
 
 print("Successfully applied game complete revision to js/game.js!")
+

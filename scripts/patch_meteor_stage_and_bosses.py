@@ -289,3 +289,4 @@ with open('js/game.js', 'w', encoding='utf-8') as f:
     f.write(text)
 
 print("All meteor, stage backdrop, and boss patches applied successfully!")
+
