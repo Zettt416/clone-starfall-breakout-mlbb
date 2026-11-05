@@ -65,6 +65,8 @@
   loadAsset('powerup_tesla_coil', 'assets/images/powerup_tesla_coil.png');
   loadAsset('powerup_quantum_clones', 'assets/images/powerup_quantum_clones.png');
   loadAsset('powerup_void_needle', 'assets/images/powerup_void_needle.png');
+  // Dedicated Enemy Scout Drone Sprite
+  loadAsset('enemy_scout', 'assets/images/enemy_scout_drone.png');
 
   // Power-up types
   const BUFF_TYPES = {
@@ -1501,6 +1503,8 @@
         this.vy = (Math.random() - 0.5) * 40;
         this.score = 75;
         this.color = '#ff0055';
+        this.rotation = 0;
+        this.rotSpeed = 0;
       } else if (type === 'wall_block') {
         this.radius = 24;
         this.hp = 5;
@@ -1529,8 +1533,10 @@
       this.y += this.vy * dt;
       if (this.isDrone) {
         this.y += Math.sin(this.time * 6.5) * 2.2;
+        this.rotation = Math.sin(this.time * 6.5) * 0.12 + (this.vy * 0.002);
+      } else {
+        this.rotation += this.rotSpeed * dt;
       }
-      this.rotation += this.rotSpeed * dt;
 
       if (this.x < -60) {
         this.toRemove = true;
@@ -1594,32 +1600,49 @@
       ctx.rotate(this.rotation);
 
       if (this.isDrone) {
-        // Fast Robotic Scout Interceptor Drone
-        ctx.fillStyle = '#ff0055';
-        ctx.shadowColor = '#ff0055';
-        ctx.shadowBlur = 12;
-        ctx.beginPath();
-        ctx.moveTo(-16, 0);
-        ctx.lineTo(14, -10);
-        ctx.lineTo(8, 0);
-        ctx.lineTo(14, 10);
-        ctx.closePath();
-        ctx.fill();
+        // Fast Robotic Scout Interceptor Drone (Dedicated 32-bit Sprite)
+        const scoutImg = assets.images['enemy_scout'];
+        if (scoutImg && scoutImg.complete && scoutImg.naturalWidth > 0) {
+          const dw = 52;
+          const dh = 24;
+          ctx.drawImage(scoutImg, -dw / 2, -dh / 2, dw, dh);
 
-        // Glowing Core
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(0, 0, 4, 0, Math.PI * 2);
-        ctx.fill();
+          // Animated Dual Cyan Ion Exhaust Plumes
+          ctx.save();
+          ctx.fillStyle = '#00f3ff';
+          ctx.shadowColor = '#00f3ff';
+          ctx.shadowBlur = 10;
+          const flame1 = 10 + Math.random() * 9;
+          ctx.beginPath();
+          ctx.moveTo(dw / 2 - 5, -5);
+          ctx.lineTo(dw / 2 + flame1, -3);
+          ctx.lineTo(dw / 2 - 5, -1);
+          ctx.fill();
 
-        // Twin Thruster Jet Exhaust
-        ctx.fillStyle = '#00f3ff';
-        ctx.beginPath();
-        ctx.moveTo(14, -4);
-        ctx.lineTo(24 + Math.random() * 8, 0);
-        ctx.lineTo(14, 4);
-        ctx.closePath();
-        ctx.fill();
+          const flame2 = 8 + Math.random() * 8;
+          ctx.beginPath();
+          ctx.moveTo(dw / 2 - 5, 1);
+          ctx.lineTo(dw / 2 + flame2, 3);
+          ctx.lineTo(dw / 2 - 5, 5);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          // Fallback procedural drone
+          ctx.fillStyle = '#ff0055';
+          ctx.shadowColor = '#ff0055';
+          ctx.shadowBlur = 12;
+          ctx.beginPath();
+          ctx.moveTo(-16, 0);
+          ctx.lineTo(14, -10);
+          ctx.lineTo(8, 0);
+          ctx.lineTo(14, 10);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(0, 0, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
       } else if (this.type === 'star') {
         if (assets.images['stellar_star'] && assets.images['stellar_star'].complete && assets.images['stellar_star'].naturalWidth > 0) {
           const d = this.radius * 2.4;
@@ -3517,135 +3540,135 @@
     state.bgCurrent.b += (state.bgTarget.b - state.bgCurrent.b) * lerpSpeed;
   }
 
-  // --- Dynamic Multi-Layer Parallax Stage Environments per Level ---
+  // --- Dynamic Atmospheric Cosmic Nebulae & Parallax Space Backdrop per Level ---
   function drawStageParallaxBackdrop(ctx) {
     if (state.activeBoss || state.bossWarningActive) return; // Boss arena overrides backdrop
-    const t = Date.now() * 0.0004;
+    const t = Date.now() * 0.0003;
 
     ctx.save();
     if (state.difficulty === 'easy') {
-      // --- Level 1 (EASY): Azure Sector & Ringed Gas Giant Planet ---
-      const planetX = CANVAS_WIDTH * 0.82;
-      const planetY = 130;
-      const planetR = 48;
-
-      // Atmospheric Glow
-      const atmGrad = ctx.createRadialGradient(planetX, planetY, planetR * 0.8, planetX, planetY, planetR * 1.5);
-      atmGrad.addColorStop(0, 'rgba(0, 243, 255, 0.22)');
-      atmGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = atmGrad;
-      ctx.beginPath();
-      ctx.arc(planetX, planetY, planetR * 1.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Planet Sphere
-      const pGrad = ctx.createLinearGradient(planetX - planetR, planetY - planetR, planetX + planetR, planetY + planetR);
-      pGrad.addColorStop(0, '#0a2540');
-      pGrad.addColorStop(0.5, '#00d2ff');
-      pGrad.addColorStop(1, '#001a33');
-      ctx.fillStyle = pGrad;
-      ctx.beginPath();
-      ctx.arc(planetX, planetY, planetR, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Translucent Planetary Ring
-      ctx.save();
-      ctx.translate(planetX, planetY);
-      ctx.rotate(-0.35);
-      ctx.strokeStyle = 'rgba(0, 243, 255, 0.35)';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, planetR * 2.1, 14, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-
-    } else if (state.difficulty === 'normal') {
-      // --- Level 2 (NORMAL): Solar Nebula & Cratered Moon ---
-      const neb1 = ctx.createRadialGradient(CANVAS_WIDTH * 0.75, 140, 10, CANVAS_WIDTH * 0.75, 140, 220);
-      neb1.addColorStop(0, 'rgba(184, 68, 255, 0.18)');
-      neb1.addColorStop(0.5, 'rgba(255, 42, 133, 0.08)');
+      // --- Level 1 (EASY): Azure Sector & Serene Cosmic Veil ---
+      // Primary Cerulean Deep-Space Nebula
+      const neb1 = ctx.createRadialGradient(CANVAS_WIDTH * 0.76, 170, 20, CANVAS_WIDTH * 0.76, 170, 360);
+      neb1.addColorStop(0, 'rgba(0, 220, 255, 0.14)');
+      neb1.addColorStop(0.4, 'rgba(0, 120, 220, 0.08)');
+      neb1.addColorStop(0.8, 'rgba(10, 30, 80, 0.03)');
       neb1.addColorStop(1, 'transparent');
       ctx.fillStyle = neb1;
       ctx.beginPath();
-      ctx.arc(CANVAS_WIDTH * 0.75, 140, 220, 0, Math.PI * 2);
+      ctx.arc(CANVAS_WIDTH * 0.76, 170, 360, 0, Math.PI * 2);
       ctx.fill();
 
-      // Distant Cratered Asteroid Moon
-      const moonX = CANVAS_WIDTH * 0.80;
-      const moonY = 320;
-      const moonR = 38;
-      const mGrad = ctx.createLinearGradient(moonX - moonR, moonY, moonX + moonR, moonY);
-      mGrad.addColorStop(0, '#2d1840');
-      mGrad.addColorStop(0.6, '#ffd000');
-      mGrad.addColorStop(1, '#11051a');
-      ctx.fillStyle = mGrad;
+      // Secondary Indigo Cosmic Dust Lane
+      const neb2 = ctx.createRadialGradient(CANVAS_WIDTH * 0.38, 380, 15, CANVAS_WIDTH * 0.38, 380, 300);
+      neb2.addColorStop(0, 'rgba(30, 80, 210, 0.11)');
+      neb2.addColorStop(0.5, 'rgba(15, 30, 90, 0.05)');
+      neb2.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb2;
       ctx.beginPath();
-      ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
+      ctx.arc(CANVAS_WIDTH * 0.38, 380, 300, 0, Math.PI * 2);
       ctx.fill();
 
-    } else if (state.difficulty === 'hard') {
-      // --- Level 3 (HARD): Crimson Supernova Core & Solar Flares ---
-      const starX = CANVAS_WIDTH * 0.84;
-      const starY = 240;
-      const starR = 55;
-
-      // Pulsating Supernova Corona
-      const sGrad = ctx.createRadialGradient(starX, starY, starR * 0.6, starX, starY, starR * 2.5);
-      sGrad.addColorStop(0, 'rgba(255, 100, 0, 0.32)');
-      sGrad.addColorStop(0.45, 'rgba(255, 0, 85, 0.14)');
-      sGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = sGrad;
+      // Soft Distant Celestial Aurora Ribbon
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.06)';
+      ctx.lineWidth = 18;
       ctx.beginPath();
-      ctx.arc(starX, starY, starR * 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Blazing Core
-      ctx.fillStyle = '#ff2200';
-      ctx.beginPath();
-      ctx.arc(starX, starY, starR, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Solar Corona Spikes
-      ctx.strokeStyle = 'rgba(255, 140, 0, 0.18)';
-      ctx.lineWidth = 2;
-      for (let s = 0; s < 8; s++) {
-        const a = t * 2 + (s * Math.PI / 4);
-        ctx.beginPath();
-        ctx.moveTo(starX + Math.cos(a) * starR, starY + Math.sin(a) * starR);
-        ctx.lineTo(starX + Math.cos(a) * (starR + 45), starY + Math.sin(a) * (starR + 45));
-        ctx.stroke();
-      }
-
-    } else {
-      // --- Level 4 (HARDCOREZ): Void Singularity / Event Horizon Black Hole ---
-      const bhX = CANVAS_WIDTH * 0.80;
-      const bhY = 240;
-      const bhR = 48;
-
-      // Accretion Disk Swirl
-      const diskGrad = ctx.createRadialGradient(bhX, bhY, bhR, bhX, bhY, bhR * 3.2);
-      diskGrad.addColorStop(0, 'rgba(224, 170, 255, 0.35)');
-      diskGrad.addColorStop(0.4, 'rgba(123, 44, 191, 0.18)');
-      diskGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = diskGrad;
-      ctx.beginPath();
-      ctx.arc(bhX, bhY, bhR * 3.2, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Relativistic Ultraviolet Photon Ring
-      ctx.strokeStyle = '#e0aaff';
-      ctx.lineWidth = 3;
-      ctx.shadowColor = '#e0aaff';
-      ctx.shadowBlur = 16;
-      ctx.beginPath();
-      ctx.arc(bhX, bhY, bhR + 4, 0, Math.PI * 2);
+      ctx.moveTo(CANVAS_WIDTH * 0.1, 80);
+      ctx.bezierCurveTo(CANVAS_WIDTH * 0.45, 140 + Math.sin(t * 1.5) * 15, CANVAS_WIDTH * 0.7, 70, CANVAS_WIDTH * 1.1, 150);
       ctx.stroke();
 
-      // Pitch Black Singularity Void Core
-      ctx.fillStyle = '#020108';
+    } else if (state.difficulty === 'normal') {
+      // --- Level 2 (NORMAL): Stellar Nursery / Magenta-Violet Orion Veil ---
+      // Primary Violet-Magenta Stellar Rift
+      const neb1 = ctx.createRadialGradient(CANVAS_WIDTH * 0.72, 230, 30, CANVAS_WIDTH * 0.72, 230, 380);
+      neb1.addColorStop(0, 'rgba(180, 50, 240, 0.15)');
+      neb1.addColorStop(0.35, 'rgba(230, 30, 120, 0.08)');
+      neb1.addColorStop(0.75, 'rgba(60, 20, 100, 0.03)');
+      neb1.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb1;
       ctx.beginPath();
-      ctx.arc(bhX, bhY, bhR, 0, Math.PI * 2);
+      ctx.arc(CANVAS_WIDTH * 0.72, 230, 380, 0, Math.PI * 2);
       ctx.fill();
+
+      // Secondary Amber-Rose Stardust Bloom
+      const neb2 = ctx.createRadialGradient(CANVAS_WIDTH * 0.32, 130, 10, CANVAS_WIDTH * 0.32, 130, 280);
+      neb2.addColorStop(0, 'rgba(255, 140, 60, 0.09)');
+      neb2.addColorStop(0.5, 'rgba(180, 50, 60, 0.04)');
+      neb2.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb2;
+      ctx.beginPath();
+      ctx.arc(CANVAS_WIDTH * 0.32, 130, 280, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ethereal Cosmic Filament
+      ctx.strokeStyle = 'rgba(210, 80, 255, 0.05)';
+      ctx.lineWidth = 22;
+      ctx.beginPath();
+      ctx.moveTo(CANVAS_WIDTH * 0.05, 340);
+      ctx.bezierCurveTo(CANVAS_WIDTH * 0.4, 260 + Math.sin(t * 1.2) * 20, CANVAS_WIDTH * 0.65, 380, CANVAS_WIDTH * 1.05, 290);
+      ctx.stroke();
+
+    } else if (state.difficulty === 'hard') {
+      // --- Level 3 (HARD): Crimson Sector & Solar Radiation Nebula ---
+      // Primary Fiery Crimson Core Nebula
+      const neb1 = ctx.createRadialGradient(CANVAS_WIDTH * 0.78, 250, 25, CANVAS_WIDTH * 0.78, 250, 400);
+      neb1.addColorStop(0, 'rgba(255, 45, 80, 0.16)');
+      neb1.addColorStop(0.4, 'rgba(200, 25, 45, 0.09)');
+      neb1.addColorStop(0.8, 'rgba(80, 10, 25, 0.03)');
+      neb1.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb1;
+      ctx.beginPath();
+      ctx.arc(CANVAS_WIDTH * 0.78, 250, 400, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Secondary Volatile Amber Flare Cloud
+      const neb2 = ctx.createRadialGradient(CANVAS_WIDTH * 0.42, 390, 10, CANVAS_WIDTH * 0.42, 390, 310);
+      neb2.addColorStop(0, 'rgba(255, 130, 0, 0.11)');
+      neb2.addColorStop(0.5, 'rgba(150, 30, 0, 0.04)');
+      neb2.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb2;
+      ctx.beginPath();
+      ctx.arc(CANVAS_WIDTH * 0.42, 390, 310, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Atmospheric Radiation Belt
+      ctx.strokeStyle = 'rgba(255, 90, 40, 0.06)';
+      ctx.lineWidth = 20;
+      ctx.beginPath();
+      ctx.moveTo(CANVAS_WIDTH * 0.15, 110);
+      ctx.bezierCurveTo(CANVAS_WIDTH * 0.5, 190 + Math.cos(t * 1.8) * 18, CANVAS_WIDTH * 0.75, 120, CANVAS_WIDTH * 1.1, 230);
+      ctx.stroke();
+
+    } else {
+      // --- Level 4 (HARDCOREZ): Abyssal Void & Dark Matter Rift ---
+      // Primary Ultraviolet Deep Singularity Nebula
+      const neb1 = ctx.createRadialGradient(CANVAS_WIDTH * 0.70, 240, 20, CANVAS_WIDTH * 0.70, 240, 420);
+      neb1.addColorStop(0, 'rgba(140, 0, 255, 0.18)');
+      neb1.addColorStop(0.35, 'rgba(0, 230, 255, 0.08)');
+      neb1.addColorStop(0.75, 'rgba(30, 5, 70, 0.03)');
+      neb1.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb1;
+      ctx.beginPath();
+      ctx.arc(CANVAS_WIDTH * 0.70, 240, 420, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Secondary Dark Matter Eddy
+      const neb2 = ctx.createRadialGradient(CANVAS_WIDTH * 0.35, 160, 10, CANVAS_WIDTH * 0.35, 160, 290);
+      neb2.addColorStop(0, 'rgba(0, 190, 255, 0.09)');
+      neb2.addColorStop(0.5, 'rgba(80, 0, 180, 0.04)');
+      neb2.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb2;
+      ctx.beginPath();
+      ctx.arc(CANVAS_WIDTH * 0.35, 160, 290, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Void Gravitational Filament
+      ctx.strokeStyle = 'rgba(160, 50, 255, 0.07)';
+      ctx.lineWidth = 24;
+      ctx.beginPath();
+      ctx.moveTo(CANVAS_WIDTH * 0.08, 420);
+      ctx.bezierCurveTo(CANVAS_WIDTH * 0.45, 320 + Math.sin(t * 1.4) * 22, CANVAS_WIDTH * 0.7, 440, CANVAS_WIDTH * 1.05, 330);
+      ctx.stroke();
     }
     ctx.restore();
   }
@@ -3654,52 +3677,45 @@
     if (!state.activeBoss && !state.bossWarningActive) return;
     const isBig = state.activeBoss ? (state.activeBoss.type === 'bigboss') : (state.bossCycle % 2 === 0);
     const arenaX = CANVAS_WIDTH * 0.78;
-    const arenaY = CANVAS_HEIGHT * 0.5;
+    const arenaY = CANVAS_HEIGHT * 0.50;
+    const t = Date.now() * 0.001;
 
     ctx.save();
     if (isBig) {
-      // Blood Eclipse Dark Sun & Corona Flares
-      const coronaGrad = ctx.createRadialGradient(arenaX, arenaY, 40, arenaX, arenaY, 320);
-      coronaGrad.addColorStop(0, 'rgba(255, 0, 85, 0.28)');
-      coronaGrad.addColorStop(0.4, 'rgba(255, 120, 0, 0.12)');
-      coronaGrad.addColorStop(0.75, 'rgba(80, 0, 120, 0.05)');
-      coronaGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = coronaGrad;
+      // Atmospheric Pulsing Crimson Boss Arena Halo (No solid black ball, no spiky sticks)
+      const pulse = 1.0 + Math.sin(t * 2.2) * 0.12;
+      const auraGrad = ctx.createRadialGradient(arenaX, arenaY, 30, arenaX, arenaY, 360 * pulse);
+      auraGrad.addColorStop(0, 'rgba(255, 0, 85, 0.22)');
+      auraGrad.addColorStop(0.35, 'rgba(180, 0, 60, 0.11)');
+      auraGrad.addColorStop(0.7, 'rgba(60, 0, 40, 0.04)');
+      auraGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = auraGrad;
       ctx.beginPath();
-      ctx.arc(arenaX, arenaY, 320, 0, Math.PI * 2);
+      ctx.arc(arenaX, arenaY, 360 * pulse, 0, Math.PI * 2);
       ctx.fill();
 
-      // Rotating Solar Corona Ray Spikes
-      const rayAngle = Date.now() * 0.0006;
-      ctx.strokeStyle = 'rgba(255, 60, 0, 0.12)';
-      ctx.lineWidth = 1.8;
-      for (let i = 0; i < 12; i++) {
-        const a = rayAngle + (i * Math.PI * 2 / 12);
-        ctx.beginPath();
-        ctx.moveTo(arenaX + Math.cos(a) * 60, arenaY + Math.sin(a) * 60);
-        ctx.lineTo(arenaX + Math.cos(a) * (180 + Math.sin(Date.now() * 0.004 + i) * 30), arenaY + Math.sin(a) * (180 + Math.sin(Date.now() * 0.004 + i) * 30));
-        ctx.stroke();
-      }
-
-      // Dark Eclipse Body Silhouette
-      ctx.fillStyle = '#06020c';
-      ctx.beginPath();
-      ctx.arc(arenaX, arenaY, 55, 0, Math.PI * 2);
-      ctx.fill();
+      // Menacing Outer Edge Vignette to focus attention on the boss duel
+      const vigGrad = ctx.createRadialGradient(CANVAS_WIDTH * 0.5, CANVAS_HEIGHT * 0.5, CANVAS_HEIGHT * 0.35, CANVAS_WIDTH * 0.5, CANVAS_HEIGHT * 0.5, CANVAS_WIDTH * 0.65);
+      vigGrad.addColorStop(0, 'transparent');
+      vigGrad.addColorStop(1, 'rgba(160, 0, 40, 0.13)');
+      ctx.fillStyle = vigGrad;
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     } else {
       // Miniboss: Swirling Electric Ion Storm Clouds
-      const stormGrad = ctx.createRadialGradient(arenaX, arenaY, 30, arenaX, arenaY, 260);
-      stormGrad.addColorStop(0, 'rgba(0, 243, 255, 0.22)');
-      stormGrad.addColorStop(0.5, 'rgba(120, 0, 255, 0.1)');
+      const pulse = 1.0 + Math.sin(t * 3.0) * 0.10;
+      const stormGrad = ctx.createRadialGradient(arenaX, arenaY, 20, arenaX, arenaY, 290 * pulse);
+      stormGrad.addColorStop(0, 'rgba(0, 243, 255, 0.18)');
+      stormGrad.addColorStop(0.4, 'rgba(110, 0, 255, 0.09)');
+      stormGrad.addColorStop(0.8, 'rgba(20, 0, 60, 0.03)');
       stormGrad.addColorStop(1, 'transparent');
       ctx.fillStyle = stormGrad;
       ctx.beginPath();
-      ctx.arc(arenaX, arenaY, 260, 0, Math.PI * 2);
+      ctx.arc(arenaX, arenaY, 290 * pulse, 0, Math.PI * 2);
       ctx.fill();
 
-      // Distant Ambient Lightning Flashes
-      if (Math.random() < 0.035) {
-        ctx.strokeStyle = 'rgba(0, 243, 255, 0.35)';
+      // Ambient Distant Lightning
+      if (Math.random() < 0.03) {
+        ctx.strokeStyle = 'rgba(0, 243, 255, 0.28)';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         let lx = arenaX - 80 + Math.random() * 160;

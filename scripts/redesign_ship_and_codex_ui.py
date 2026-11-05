@@ -1060,3 +1060,4 @@ css = css.replace(old_kodex_css, new_kodex_css, 1)
 with open('css/style.css', 'w', encoding='utf-8') as f:
     f.write(css)
 print("3. Successfully updated css/style.css!")
+
